@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        /* Import a clean font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        /* ## SMOOTH STYLES UPDATE ## */
+
+        /* General Body Styles */
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            color: #444;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Animation for page elements */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header/Nav Styles */
+        header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #333;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+        nav a {
+            color: #555;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        nav a:hover { color: #667eea; }
+
+        /* Admin Dashboard Styles 📊 */
+        .dashboard-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+        .summary-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+        }
+        .summary-card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            text-align: center;
+            flex: 1 1 200px;
+            max-width: 250px;
+            transition: all 0.3s ease;
+        }
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+        }
+        .summary-card h3 { margin: 0 0 10px 0; color: #667eea; font-weight: 600; }
+        .summary-card .stat { font-size: 2.5rem; font-weight: 600; color: #333; }
+
+        /* User Table Styles */
+        .dashboard-section {
+            background-color: #fff;
+            margin-top: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        .dashboard-section h2 {
+            margin: 0;
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .user-table th, .user-table td {
+            padding: 15px 25px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .user-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #555;
+        }
+        .user-table tr:last-child td {
+            border-bottom: none;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <a href="admin.html">Dashboard</a>
+            <a href="index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Total Interactions</h3>
+                <div id="stat-interactions" class="stat">0</div>
+                <p>(Student Logins)</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Downloads</h3>
+                <div id="stat-downloads" class="stat">0</div>
+                <p>(Audio File)</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <h2>User Session Data</h2>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Section</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // All JavaScript remains the same
+        function renderUserTable() {
+            const users = JSON.parse(sessionStorage.getItem('allUsers') || '[]');
+            const tableBody = document.getElementById('user-table-body');
+            tableBody.innerHTML = ''; 
+
+            if (users.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;">No student logins recorded in this session.</td></tr>`;
+                return;
+            }
+
+            users.forEach((user, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.branch}</td>
+                    <td><button class="delete-btn" onclick="deleteUser(${index})">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteUser(index) {
+            let users = JSON.parse(sessionStorage.getItem('allUsers') || '[]');
+            users.splice(index, 1); 
+            sessionStorage.setItem('allUsers', JSON.stringify(users)); 
+            
+            document.getElementById('stat-interactions').textContent = users.length;
+            renderUserTable();
+        }
+
+        window.onload = function() {
+            const users = JSON.parse(sessionStorage.getItem('allUsers') || '[]');
+            document.getElementById('stat-interactions').textContent = users.length;
+            
+            const downloadCount = sessionStorage.getItem('downloadCount') || '0';
+            document.getElementById('stat-downloads').textContent = downloadCount;
+
+            renderUserTable();
+        };
+    </script>
+
+</body>
+</html>
